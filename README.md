@@ -26,10 +26,10 @@ $Boleto->emitiBoleto($Dados)
 
 - Outras forma de Utilizar a classe
 ```html
-*Varifcar seu saldo*
+Verificar seu saldo
 $Boleto->getSaldo();
 
-<em>Solicitar transferencias</em>
+Solicitar transferencias
 $Boleto->getTranferencia();
 
 <em>Cancelar boletos emitidos (Somentes boletos não pagos)</em>
