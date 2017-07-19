@@ -35,3 +35,4 @@ $Boleto->getTranferencia();
 <em>Cancelar boletos emitidos (Somentes boletos não pagos)</em>
 $Boleto->getCancelamento(10051054);
 ```
+[![N|Solid](https://www.davsonsantos.com.br/themes/new-blog/images/doarclick.jpg)](https://www.moip.com.br/Process.do)
