@@ -179,9 +179,19 @@ class BoletoFacil {
         endif;
         $this->Data = $Dados;
         $this->Clear();
-
         $this->DadosObrigatorios($Dados);
         $this->getUrl();
+        if ($this->Result['success']):
+            $this->Result = [
+                'code' => $this->Result['data']['charges'][0]['code'],
+                'dueDate' => $this->Result['data']['charges'][0]['dueDate'],
+                'link' => $this->Result['data']['charges'][0]['link'],
+                'payNumber' => $this->Result['data']['charges'][0]['payNumber']
+            ];
+        else:
+            $this->Result = false;
+            $this->Errors = TRUE;
+        endif;
         return $this->Result;
     }
 
@@ -190,10 +200,14 @@ class BoletoFacil {
      * @param array $Dados
      */
     public function DadosObrigatorios() {
-        if (empty($this->Data['description'])): $this->Errors = true;endif;
-        if (empty($this->Data['amount'])): $this->Errors = true;endif;
-        if (empty($this->Data['name'])): $this->Errors = true;endif;
-        if (empty($this->Data['document'])): $this->Errors = true;endif;
+        if (empty($this->Data['description'])): $this->Errors = true;
+        endif;
+        if (empty($this->Data['amount'])): $this->Errors = true;
+        endif;
+        if (empty($this->Data['name'])): $this->Errors = true;
+        endif;
+        if (empty($this->Data['document'])): $this->Errors = true;
+        endif;
         if ($this->Errors == TRUE):
             $this->Result = false;
         else:
@@ -238,19 +252,17 @@ class BoletoFacil {
      * Retorna o Saldo da Conta
      */
     public function getSaldo() {
-
         if (PAYMENT_ENV == 'sandbox'):
             $this->Url = 'https://sandbox.boletobancario.com/boletofacil/integration/api/v1/fetch-balance?token=' . $this->token;
         else:
             $this->Url = 'https://boletobancario.com/boletofacil/integration/api/v1/fetch-balance?token=' . $this->token;
         endif;
-
-        $this->ReturnJson = json_decode(file_get_contents($this->Url), true);
-        if ($this->ReturnJson['success']):
+        $this->getUrl();
+        if ($this->Result['success']):
             $this->Result = [
-                'balance' => $this->ReturnJson['data']['balance'],
-                'withheldBalance' => $this->ReturnJson['data']['withheldBalance'],
-                'transferableBalance' => $this->ReturnJson['data']['transferableBalance']
+                'balance' => $this->Result['data']['balance'],
+                'withheldBalance' => $this->Result['data']['withheldBalance'],
+                'transferableBalance' => $this->Result['data']['transferableBalance']
             ];
         else:
             $this->Result = false;
@@ -268,9 +280,8 @@ class BoletoFacil {
         else:
             $this->Url = 'https://sandbox.boletobancario.com/boletofacil/integration/api/v1/request-transfer?token=' . $this->token;
         endif;
-
-        $this->ReturnJson = json_decode(file_get_contents($this->Url), true);
-        if ($this->ReturnJson['success']):
+        $this->getUrl();
+        if ($this->Result['success']):
             $this->Result = true;
         else:
             $this->Result = false;
@@ -289,9 +300,9 @@ class BoletoFacil {
         else:
             $this->Url = 'https://boletobancario.com/boletofacil/integration/api/v1/cancel-charge?token=' . $this->token . '&code=' . $Code;
         endif;
-
-        $this->ReturnJson = json_decode(file_get_contents($this->Url), true);
-        if ($this->ReturnJson['success']):
+        //$this->ReturnJson = json_decode(file_get_contents($this->Url), true);
+        $this->getUrl();
+        if ($this->Result['success']):
             $this->Result = true;
         else:
             $this->Result = false;
@@ -311,9 +322,8 @@ class BoletoFacil {
         else:
             $this->Url = 'https://boletobancario.com/boletofacil/integration/api/v1/fetch-payment-details?paymentToken=' . $Code;
         endif;
-
-        $this->ReturnJson = json_decode(file_get_contents($this->Url), true);
-        if ($this->ReturnJson['success']):
+        $this->getUrl();
+        if ($this->Result['success']):
             $this->Result = [
                 'tic_payment_id' => $this->ReturnJson['data']['payment']['id'],
                 'tic_payment_date' => $this->ReturnJson['data']['payment']['date'],
@@ -331,19 +341,14 @@ class BoletoFacil {
      * Retorno os dados de um Json
      */
     public function getUrl() {
-        $this->ReturnJson = json_decode(file_get_contents($this->Url), true);
-        if ($this->ReturnJson['success']):
-
-            $this->Result = [
-                'code' => $this->ReturnJson['data']['charges'][0]['code'],
-                'dueDate' => $this->ReturnJson['data']['charges'][0]['dueDate'],
-                'link' => $this->ReturnJson['data']['charges'][0]['link'],
-                'payNumber' => $this->ReturnJson['data']['charges'][0]['payNumber']
-            ];
-        else:
-            $this->Result = false;
-            $this->Errors = TRUE;
-        endif;
+        $url = $this->Url;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        $result = curl_exec($ch);
+        curl_close($ch);
+        $this->Result = json_decode($result, true);
     }
 
     /**
