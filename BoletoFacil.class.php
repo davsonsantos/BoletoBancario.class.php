@@ -228,6 +228,7 @@ class BoletoFacil {
     public function DadosOpcionais() {
         (!empty($this->Data['email']) ? $this->Url .= "&payerEmail=" . $this->Data['email'] : "");
         (!empty($this->Data['reference']) ? $this->Url .= "&reference=" . $this->Data['reference'] : "");
+        (!empty($this->Data['dueDate']) ? $this->Url .= "&dueDate=" . $this->Data['dueDate'] : "");
         (!empty($this->Data['installments']) ? $this->Url .= "&installments=" . $this->Data['installments'] : "");
         (!empty($this->Data['maxOverdueDays']) ? $this->Url .= "&maxOverdueDays=" . $this->Data['maxOverdueDays'] : "");
         (!empty($this->Data['interest']) ? $this->Url .= "&interest=" . $this->Data['interest'] : "");
