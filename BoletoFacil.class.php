@@ -32,13 +32,11 @@ class BoletoFacil {
     //Formato: CPF ou CNPJ válido, aceito com ou sem pontuação
     private $payerCpfCnpj;
     //INFORMAÇÕES OPCIONAIS
-
     /**
      * @Param reference;
       //</b>Código de referência da cobrança</b>
       //Este código fica associado à(s) cobrança(s) criada(s) por esta requisição e é útil para vincular as transações do Boleto Fácil às vendas registradas no seu sistema
       //Formato: Livre com até 255 caracteres
-
       /**
      * @Param duedate;
      * <b>Data de Vencimento</b> 
@@ -182,12 +180,15 @@ class BoletoFacil {
         $this->DadosObrigatorios($Dados);
         $this->getUrl();
         if ($this->Result['success']):
-            $this->Result = [
-                'code' => $this->Result['data']['charges'][0]['code'],
-                'dueDate' => $this->Result['data']['charges'][0]['dueDate'],
-                'link' => $this->Result['data']['charges'][0]['link'],
-                'payNumber' => $this->Result['data']['charges'][0]['payNumber']
-            ];
+            for ($b = 0; $b < count($this->Result['data']['charges']); $b++):
+                $Bilet[$b] = [
+                    'code' => $this->Result['data']['charges'][$b]['code'],
+                    'dueDate' => $this->Result['data']['charges'][$b]['dueDate'],
+                    'link' => $this->Result['data']['charges'][$b]['link'],
+                    'payNumber' => $this->Result['data']['charges'][$b]['payNumber']
+                ];
+            endfor;
+            $this->Result = $Bilet;
         else:
             $this->Result = false;
             $this->Errors = TRUE;
@@ -200,14 +201,10 @@ class BoletoFacil {
      * @param array $Dados
      */
     public function DadosObrigatorios() {
-        if (empty($this->Data['description'])): $this->Errors = true;
-        endif;
-        if (empty($this->Data['amount'])): $this->Errors = true;
-        endif;
-        if (empty($this->Data['name'])): $this->Errors = true;
-        endif;
-        if (empty($this->Data['document'])): $this->Errors = true;
-        endif;
+        if (empty($this->Data['description'])): $this->Errors = true;endif;
+        if (empty($this->Data['amount'])): $this->Errors = true;endif;
+        if (empty($this->Data['name'])): $this->Errors = true;endif;
+        if (empty($this->Data['document'])): $this->Errors = true;endif;
         if ($this->Errors == TRUE):
             $this->Result = false;
         else:
